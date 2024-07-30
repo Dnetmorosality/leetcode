@@ -39,14 +39,23 @@ public class BlockPlacementQueries {
 
     private static boolean hasFreeSpace(boolean[] axis, int limit, int size) {
         int count = 0;
-        for (int i = 0; i < limit; i++) {
+        for (int i = 0; i <= count; i++) {
             if (axis[i]) {
-                count = 0;
+                break;
             } else {
                 count++;
-                if ((count + 1 >= size && i > count) || (count >= size && i <= count)) return true;
+                if (count >= size) return true;
+            }
+        }
+        for (int i = count; i < limit; i++) {
+            if (axis[i]) {
+                count = 1;
+            } else {
+                count++;
+                if (count>= size) return true;
             }
         }
         return false;
     }
 }
+
