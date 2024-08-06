@@ -1,4 +1,4 @@
-package main.hard.task3161;
+package main.java.hard.task3161;
 
 import java.util.ArrayList;
 import java.util.List;
