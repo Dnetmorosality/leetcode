@@ -47,16 +47,14 @@ public class BlockPlacementQueriesV2 {
 
     private void addNode(Node node, int val) {
         if (val == node.r) return;
-        if (val < node.r) {
-            if (node.left == null) {
-                node.left = new Node(node.l, val, val - node.l);
-                node.right = new Node(val, node.r, node.r - val);
+        if (node.left == null) {
+            node.left = new Node(node.l, val, val - node.l);
+            node.right = new Node(val, node.r, node.r - val);
+        } else {
+            if (val < node.left.r) {
+                addNode(node.left, val);
             } else {
-                if (val < node.left.r) {
-                    addNode(node.left, val);
-                } else {
-                    addNode(node.right, val);
-                }
+                addNode(node.right, val);
             }
         }
     }
