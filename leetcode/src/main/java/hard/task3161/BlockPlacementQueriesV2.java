@@ -62,30 +62,16 @@ public class BlockPlacementQueriesV2 {
     }
 
     private boolean hasFreeBox(Node root, int q1, int q2) {
-        List<Node> leaves = collectLeaves(root, q1, q2);
-        for (Node leaf : leaves) {
-            if (leaf.size >= q2) {
-                return true;
-            }
-        }
-        return false;
+        return hasFreeBoxHelper(root, q2, q1 - q2);
     }
 
-    private List<Node> collectLeaves(Node root, int border, int size) {
-        List<Node> leaves = new ArrayList<>();
-        int leftBorder = border - size;
-        collectLeavesHelper(root, leaves, size, leftBorder);
-        return leaves;
-    }
-
-    private void collectLeavesHelper(Node node, List<Node> leaves, int size, int leftBorder) {
-        if (node.size >= size && leftBorder >= node.l) {
-            if (node.left == null) {
-                leaves.add(node);
-            } else {
-                collectLeavesHelper(node.left, leaves, size, leftBorder);
-                collectLeavesHelper(node.right, leaves, size, leftBorder);
-            }
+    private boolean hasFreeBoxHelper(Node node, int size, int leftBorder) {
+        if (node.size < size || leftBorder < node.l) {
+            return false;
         }
+        if (node.left == null) {
+            return true;
+        }
+        return hasFreeBoxHelper(node.left, size, leftBorder) || hasFreeBoxHelper(node.right, size, leftBorder);
     }
 }
