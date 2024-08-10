@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockPlacementQueriesV2 {
-    static class Node {
-        Node left, right;
+    private static class Node {
+        Node left;
+        Node right;
         int l;
         int r;
         int size;
@@ -19,86 +20,71 @@ public class BlockPlacementQueriesV2 {
 
     public List<Boolean> getResults(int[][] queries) {
         List<Boolean> result = new ArrayList<>();
-        int maxRight = 0;
+        int maxR = 0;
         for (int[] q : queries) {
             if (q[0] == 1) {
-                maxRight = Math.max(q[1], maxRight);
+                maxR = Math.max(q[1], maxR);
             }
         }
-        Node root = new Node(0, maxRight, maxRight);
+        Node root = new Node(0, maxR, maxR);
         int tempBorder = 0;
         for (int[] q : queries) {
-            if(q[0]!= 1 && tempBorder <= q[1] - q[2]) {
-                result.add(true);
-            } else {
-                if (q[0] == 1) {
-                    addNode(root, q[1]);
-                    tempBorder = Math.max(q[1], tempBorder);
+            if (q[0] == 2) {
+                if (q[2] > q[1]) {
+                    result.add(false);
+                } else if (tempBorder <= q[1] - q[2]) {
+                    result.add(true);
                 } else {
                     result.add(hasFreeBox(root, q[1], q[2]));
                 }
+            } else {
+                addNode(root, q[1]);
+                tempBorder = tempBorder == maxR ? maxR : Math.max(q[1], tempBorder);
             }
         }
-        System.out.println(result);
         return result;
     }
 
-    private Node addNode(Node node, int val) {
-        if (val == node.r) return node;
+    private void addNode(Node node, int val) {
+        if (val == node.r) return;
         if (val < node.r) {
             if (node.left == null) {
                 node.left = new Node(node.l, val, val - node.l);
                 node.right = new Node(val, node.r, node.r - val);
-            } else if (node.left.r > val && node.left.l < val && node.left.left == null) {
-                addNode(node.left, val);
-            } else if (node.right.r > val && node.right.l < val && node.right.left == null) {
-                addNode(node.right, val);
-            } else if (node.right.l < val && node.right.r > val && node.right.right != null) {
-                addNode(node.right, val);
-            } else if (node.left.l > val && node.left.r > val && node.left.right != null) {
-                addNode(node.left, val);
-            } else if (node.left.r > val && (node.left.left != null || node.left.right != null)) {
-                addNode(node.left, val);
-            } else if (node.right.l < val && (node.right.left != null || node.right.right != null)) {
-                addNode(node.right, val);
+            } else {
+                if (val < node.left.r) {
+                    addNode(node.left, val);
+                } else {
+                    addNode(node.right, val);
+                }
             }
         }
-        return node;
     }
 
     private boolean hasFreeBox(Node root, int q1, int q2) {
-        if (q2 > q1) return false;
-        if (q1 - q2 >= root.r) return true;
-        List<Node> leaves = collectLeaves(root);
+        List<Node> leaves = collectLeaves(root, q1, q2);
         for (Node leaf : leaves) {
-            if (leaf.r > q1 && q1 - q2 >= leaf.l) {
+            if (leaf.size >= q2) {
                 return true;
-            } else {
-                if (leaf.size >= q2 && q1 - q2 >= leaf.l) return true;
             }
         }
         return false;
     }
 
-    private List<Node> collectLeaves(Node root) {
+    private List<Node> collectLeaves(Node root, int border, int size) {
         List<Node> leaves = new ArrayList<>();
-        collectLeavesHelper(root, leaves);
+        int leftBorder = border - size;
+        collectLeavesHelper(root, leaves, size, leftBorder);
         return leaves;
     }
 
-    private void collectLeavesHelper(Node node, List<Node> leaves) {
-        if (node == null) {
-            return;
-        }
-
-        if (node.left == null && node.right == null) {
-            leaves.add(node);
-        } else {
-            if (node.left != null) {
-                collectLeavesHelper(node.left, leaves);
-            }
-            if (node.right != null) {
-                collectLeavesHelper(node.right, leaves);
+    private void collectLeavesHelper(Node node, List<Node> leaves, int size, int leftBorder) {
+        if (node.size >= size && leftBorder >= node.l) {
+            if (node.left == null) {
+                leaves.add(node);
+            } else {
+                collectLeavesHelper(node.left, leaves, size, leftBorder);
+                collectLeavesHelper(node.right, leaves, size, leftBorder);
             }
         }
     }
