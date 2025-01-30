@@ -64,7 +64,7 @@ public class BlockPlacementQueriesV2 {
     }
 
     private boolean hasFreeBoxHelper(Node node, int size, int leftBorder) {
-        if (node.size < size || leftBorder < node.l) {
+        if (leftBorder < node.l || node.size < size) {
             return false;
         }
         if (node.left == null) {
